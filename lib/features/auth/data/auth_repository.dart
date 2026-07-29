@@ -34,6 +34,7 @@ class AuthRepository {
     }
   }
 
+
   Future<void> register({
     required String name,
     required String email,

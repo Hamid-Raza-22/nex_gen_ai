@@ -23,7 +23,8 @@ class AuthRepository {
         data: {'email': email, 'password': password},
       );
       final data = res.data ?? const {};
-      final token = data['token'] ?? data['access_token'] ?? data['data']?['token'];
+      // Handle response structure where token is in 'data' field directly
+      final token = data['token'] ?? data['access_token'] ?? data['data'];
       if (token is! String || token.isEmpty) {
         throw const ApiException('Unexpected response from server.');
       }

@@ -1,0 +1,199 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/theme/app_colors.dart';
+import '../../ai_assistants/data/personas.dart';
+import '../application/chat_controller.dart';
+
+class ChatScreen extends ConsumerStatefulWidget {
+  const ChatScreen({super.key, required this.personaId});
+
+  final String personaId;
+
+  @override
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends ConsumerState<ChatScreen> {
+  final _inputController = TextEditingController();
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _inputController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    final text = _inputController.text;
+    if (text.trim().isEmpty) return;
+    _inputController.clear();
+    ref.read(chatControllerProvider(widget.personaId).notifier).send(text);
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final persona = personaById(widget.personaId) ?? personas.first;
+    final chat = ref.watch(chatControllerProvider(widget.personaId));
+
+    ref.listen(chatControllerProvider(widget.personaId), (prev, next) {
+      if (next.error != null && next.error != prev?.error) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(next.error!)));
+      }
+      _scrollToBottom();
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundImage: AssetImage(persona.image),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(persona.name, style: const TextStyle(fontSize: 16)),
+                Text(
+                  persona.role,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.light,
+                    fontFamily: '',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: chat.messages.length,
+              itemBuilder: (context, index) {
+                final message = chat.messages[index];
+                return _MessageBubble(message: message);
+              },
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _inputController,
+                      minLines: 1,
+                      maxLines: 5,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _send(),
+                      decoration: InputDecoration(
+                        hintText: 'Message ${persona.name}...',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    onPressed: chat.isSending ? null : _send,
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      minimumSize: const Size(48, 48),
+                    ),
+                    icon: chat.isSending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.send, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message});
+
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final isUser = message.role == 'user';
+
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress: message.content.isEmpty
+            ? null
+            : () {
+                Clipboard.setData(ClipboardData(text: message.content));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
+              },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+          ),
+          decoration: BoxDecoration(
+            color: isUser ? AppColors.primary : AppColors.dark,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(16),
+              topRight: const Radius.circular(16),
+              bottomLeft: Radius.circular(isUser ? 16 : 4),
+              bottomRight: Radius.circular(isUser ? 4 : 16),
+            ),
+          ),
+          child: message.content.isEmpty && message.isStreaming
+              ? const SizedBox(
+                  width: 36,
+                  child: Text('...', style: TextStyle(fontSize: 18)),
+                )
+              : SelectableText(
+                  message.content,
+                  style: TextStyle(
+                    color: isUser ? Colors.white : AppColors.lightest,
+                    height: 1.4,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,4 +1,4 @@
-package com.nex_gen_ai.nex_gen_ai
+package com.hamid.nex_gen_ai
 
 import io.flutter.embedding.android.FlutterActivity
 

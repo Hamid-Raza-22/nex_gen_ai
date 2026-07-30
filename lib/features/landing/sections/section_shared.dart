@@ -143,3 +143,116 @@ class SectionCard extends StatelessWidget {
     );
   }
 }
+
+/// Simple reveal animation that triggers when the widget is first built.
+class FadeInReveal extends StatefulWidget {
+  const FadeInReveal({
+    super.key,
+    required this.child,
+    this.delay = Duration.zero,
+    this.duration = const Duration(milliseconds: 1000),
+    this.horizontalOffset = 0.35, // Right to left distance
+  });
+
+  final Widget child;
+  final Duration delay;
+  final Duration duration;
+  final double horizontalOffset;
+
+  @override
+  State<FadeInReveal> createState() => _FadeInRevealState();
+}
+
+class _FadeInRevealState extends State<FadeInReveal>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+  bool _hasStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _opacity = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+    _slide = Tween<Offset>(
+      begin: Offset(widget.horizontalOffset, 0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+  }
+
+  void _trigger() {
+    if (_hasStarted || !mounted) return;
+    setState(() => _hasStarted = true);
+    Future.delayed(widget.delay, () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _VisibilityTrigger(
+      onVisible: _trigger,
+      child: FadeTransition(
+        opacity: _opacity,
+        child: SlideTransition(position: _slide, child: widget.child),
+      ),
+    );
+  }
+}
+
+/// A helper widget that triggers a callback when it becomes visible on screen.
+class _VisibilityTrigger extends StatefulWidget {
+  const _VisibilityTrigger({required this.child, required this.onVisible});
+
+  final Widget child;
+  final VoidCallback onVisible;
+
+  @override
+  State<_VisibilityTrigger> createState() => _VisibilityTriggerState();
+}
+
+class _VisibilityTriggerState extends State<_VisibilityTrigger> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisibility());
+  }
+
+  void _checkVisibility() {
+    if (!mounted || _isVisible) return;
+
+    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
+    // Trigger when the widget is within the bottom 15% of the screen
+    if (position.dy < screenHeight * 0.85) {
+      _isVisible = true;
+      widget.onVisible();
+    } else {
+      // Re-check on next frame if not visible yet
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisibility());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}

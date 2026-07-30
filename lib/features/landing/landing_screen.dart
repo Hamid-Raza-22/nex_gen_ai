@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_theme.dart';
@@ -22,62 +23,120 @@ import 'sections/why_us_section.dart';
 /// Landing screen — a faithful mobile recreation of the brainvoai.com
 /// (NexgenAI) hero section. All copy, colors and layout were extracted from
 /// the production web bundle.
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
+
+  @override
+  State<LandingScreen> createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
+  final ScrollController _scrollController = ScrollController();
+  
+  final GlobalKey _capabilitiesKey = GlobalKey();
+  final GlobalKey _processKey = GlobalKey();
+  final GlobalKey _pricingKey = GlobalKey();
+  final GlobalKey _blogKey = GlobalKey();
+  final GlobalKey _faqKey = GlobalKey();
+  final GlobalKey _contactKey = GlobalKey();
+
+  void _scrollToSection(String item) {
+    GlobalKey? key;
+    switch (item) {
+      case 'Capabilities':
+        key = _capabilitiesKey;
+        break;
+      case 'How It Works':
+        key = _processKey;
+        break;
+      case 'Pricing':
+        key = _pricingKey;
+        break;
+      case 'Blog':
+        key = _blogKey;
+        break;
+      case 'FAQs':
+        key = _faqKey;
+        break;
+      case 'Contact Us':
+        key = _contactKey;
+        break;
+    }
+
+    if (key?.currentContext != null) {
+      Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkest,
-      endDrawer: const _NavDrawer(),
+      endDrawer: _NavDrawer(onNavItemTap: _scrollToSection),
       body: Stack(
         children: [
-          const _AnimatedOrbs(),
+          _AnimatedOrbs(scrollController: _scrollController),
           SafeArea(
             child: Column(
               children: [
                 const _TopBar(),
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         // Hero
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 24),
-                              _HeroBadge(),
-                              SizedBox(height: 20),
-                              _HeroHeadline(),
-                              SizedBox(height: 16),
-                              _HeroDescription(),
-                              SizedBox(height: 28),
-                              _CtaButtons(),
-                              SizedBox(height: 32),
-                              _StatsRow(),
-                              SizedBox(height: 40),
-                              _HeroVisual(),
-                            ],
+                        const FadeInReveal(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 24),
+                                _HeroBadge(),
+                                SizedBox(height: 20),
+                                _HeroHeadline(),
+                                SizedBox(height: 16),
+                                _HeroDescription(),
+                                SizedBox(height: 28),
+                                _CtaButtons(),
+                                SizedBox(height: 32),
+                                _StatsRow(),
+                                SizedBox(height: 40),
+                                _HeroVisual(),
+                              ],
+                            ),
                           ),
                         ),
                         // Page sections (same order as the website)
-                        AboutSection(),
-                        CapabilitiesSection(),
-                        ProcessSection(),
-                        PlatformSection(),
-                        WhyUsSection(),
-                        WhyChooseSection(),
-                        UseCasesSection(),
-                        TestimonialsSection(),
-                        FaqSection(),
-                        PricingSection(),
-                        CtaSection(),
-                        BlogSection(),
-                        ContactSection(),
-                        FooterSection(),
+                        const FadeInReveal(child: AboutSection()),
+                        FadeInReveal(
+                          child: CapabilitiesSection(key: _capabilitiesKey),
+                        ),
+                        FadeInReveal(child: ProcessSection(key: _processKey)),
+                        const FadeInReveal(child: PlatformSection()),
+                        const FadeInReveal(child: WhyUsSection()),
+                        const FadeInReveal(child: WhyChooseSection()),
+                        const FadeInReveal(child: UseCasesSection()),
+                        const FadeInReveal(child: TestimonialsSection()),
+                        FadeInReveal(child: FaqSection(key: _faqKey)),
+                        FadeInReveal(child: PricingSection(key: _pricingKey)),
+                        const FadeInReveal(child: CtaSection()),
+                        FadeInReveal(child: BlogSection(key: _blogKey)),
+                        FadeInReveal(child: ContactSection(key: _contactKey)),
+                        const FooterSection(),
                       ],
                     ),
                   ),
@@ -136,10 +195,19 @@ class _TopBar extends StatelessWidget {
 // ─── Navigation drawer (mobile menu) ────────────────────────────────────────
 
 /// Menu entries extracted from the website's landing page sections.
-const _navItems = ['Capabilities', 'How It Works', 'Pricing', 'Blog'];
+const _navItems = [
+  'Capabilities',
+  'How It Works',
+  'Pricing',
+  'Blog',
+  'FAQs',
+  'Contact Us',
+];
 
 class _NavDrawer extends StatelessWidget {
-  const _NavDrawer();
+  const _NavDrawer({required this.onNavItemTap});
+
+  final void Function(String) onNavItemTap;
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +254,10 @@ class _NavDrawer extends StatelessWidget {
                   color: AppColors.mid,
                   size: 20,
                 ),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  onNavItemTap(item);
+                },
               ),
             const Spacer(),
             Padding(
@@ -195,7 +266,7 @@ class _NavDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () => context.push('/auth/login'),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
                       side: BorderSide(
@@ -214,7 +285,7 @@ class _NavDrawer extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: FilledButton(
-                      onPressed: () {},
+                      onPressed: () => context.push('/auth/register'),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
@@ -414,7 +485,7 @@ class _CtaButtons extends StatelessWidget {
               ],
             ),
             child: FilledButton(
-              onPressed: () {},
+              onPressed: () => context.push('/auth/register'),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
@@ -468,7 +539,7 @@ class _StatsRow extends StatelessWidget {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _StatItem(value: '4+', label: 'AI Engines', color: AppColors.neonCyan),
+        _StatItem(value: '14+', label: 'AI Engines', color: AppColors.neonCyan),
         _StatItem(
           value: '10k+',
           label: 'Generations',
@@ -546,7 +617,7 @@ class _HeroVisualState extends State<_HeroVisual>
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final imageSize = math.min(width * 0.78, 360.0);
+        final imageSize = math.min(width * 0.98, 360.0);
 
         return SizedBox(
           height: imageSize + 70,
@@ -661,7 +732,9 @@ class _FeatureChip extends StatelessWidget {
 // ─── Animated background orbs ───────────────────────────────────────────────
 
 class _AnimatedOrbs extends StatefulWidget {
-  const _AnimatedOrbs();
+  const _AnimatedOrbs({required this.scrollController});
+
+  final ScrollController scrollController;
 
   @override
   State<_AnimatedOrbs> createState() => _AnimatedOrbsState();
@@ -685,25 +758,29 @@ class _AnimatedOrbsState extends State<_AnimatedOrbs>
     final size = MediaQuery.sizeOf(context);
 
     return AnimatedBuilder(
-      animation: _controller,
+      animation: Listenable.merge([_controller, widget.scrollController]),
       builder: (context, _) {
+        final scrollOffset = widget.scrollController.hasClients
+            ? widget.scrollController.offset
+            : 0.0;
         final pulse = 0.75 + _controller.value * 0.25;
+
         return Stack(
           children: [
             _orb(
-              top: -60,
+              top: -60 - (scrollOffset * 0.2),
               left: -70,
               diameter: 260 * pulse,
               color: AppColors.neonCyan.withValues(alpha: 0.10),
             ),
             _orb(
-              top: size.height * 0.35,
+              top: (size.height * 0.35) - (scrollOffset * 0.4),
               right: -90,
               diameter: 300 * (1.05 - _controller.value * 0.2),
               color: AppColors.neonPurple.withValues(alpha: 0.10),
             ),
             _orb(
-              bottom: -80,
+              bottom: -80 + (scrollOffset * 0.1),
               left: size.width * 0.2,
               diameter: 280 * pulse,
               color: AppColors.neonPink.withValues(alpha: 0.08),

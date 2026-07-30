@@ -280,7 +280,7 @@ class _NavDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   OutlinedButton(
-                    onPressed: () => context.push('/auth/login'),
+                    onPressed: () => context.go('/auth/login'),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
                       side: BorderSide(
@@ -299,7 +299,7 @@ class _NavDrawer extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: FilledButton(
-                      onPressed: () => context.push('/auth/register'),
+                      onPressed: () => context.go('/auth/register'),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
@@ -499,7 +499,7 @@ class _CtaButtons extends StatelessWidget {
               ],
             ),
             child: FilledButton(
-              onPressed: () => context.push('/auth/register'),
+              onPressed: () => context.go('/auth/register'),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,

@@ -34,7 +34,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
-      // Router redirect handles navigation on success.
+      // Navigation is handled by the router redirect. 
+      // If the redirect is slow to fire, we can force it:
+      if (mounted) context.go('/');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)

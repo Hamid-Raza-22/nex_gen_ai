@@ -20,6 +20,7 @@ import '../features/content_generator/presentation/content_generator_screen.dart
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/history/history_screen.dart';
 import '../features/interior_design/presentation/interior_design_screen.dart';
+import '../features/landing/landing_screen.dart';
 import '../features/logo_generator/presentation/logo_generator_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -32,12 +33,15 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refreshNotifier.dispose);
 
   return GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/landing',
     refreshListenable: refreshNotifier,
     redirect: (context, state) {
       final status = ref.read(authControllerProvider).status;
       final onboardingSeen = ref.read(appPrefsProvider).onboardingSeen;
       final location = state.matchedLocation;
+
+      // The landing page is public and never redirected away from.
+      if (location == '/landing') return null;
       final inAuth = location.startsWith('/auth');
       final inSplash = location == '/splash';
       final inOnboarding = location == '/onboarding';
@@ -52,6 +56,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       };
     },
     routes: [
+      GoRoute(
+        path: '/landing',
+        builder: (context, state) => const LandingScreen(),
+      ),
       GoRoute(
         path: '/splash',
         builder: (context, state) => const SplashScreen(),

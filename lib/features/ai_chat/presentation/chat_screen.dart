@@ -3,13 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
-import '../../ai_assistants/data/personas.dart';
 import '../application/chat_controller.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key, required this.personaId});
+  const ChatScreen({super.key, required this.config});
 
-  final String personaId;
+  final ChatConfig config;
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -30,7 +29,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final text = _inputController.text;
     if (text.trim().isEmpty) return;
     _inputController.clear();
-    ref.read(chatControllerProvider(widget.personaId).notifier).send(text);
+    ref.read(chatControllerProvider(widget.config).notifier).send(text);
     _scrollToBottom();
   }
 
@@ -48,10 +47,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final persona = personaById(widget.personaId) ?? personas.first;
-    final chat = ref.watch(chatControllerProvider(widget.personaId));
+    final config = widget.config;
+    final chat = ref.watch(chatControllerProvider(config));
 
-    ref.listen(chatControllerProvider(widget.personaId), (prev, next) {
+    ref.listen(chatControllerProvider(config), (prev, next) {
       if (next.error != null && next.error != prev?.error) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(next.error!)));
@@ -61,25 +60,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 0,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundImage: AssetImage(persona.image),
+              backgroundImage: AssetImage(config.avatar),
             ),
             const SizedBox(width: 10),
             Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(persona.name, style: const TextStyle(fontSize: 16)),
+                Text(config.title, style: const TextStyle(fontSize: 15)),
                 Text(
-                  persona.role,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.light,
-                    fontFamily: '',
-                  ),
+                  config.subtitle,
+                  style: const TextStyle(fontSize: 11, color: AppColors.light),
                 ),
               ],
             ),
@@ -93,10 +90,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: chat.messages.length,
-              itemBuilder: (context, index) {
-                final message = chat.messages[index];
-                return _MessageBubble(message: message);
-              },
+              itemBuilder: (context, index) =>
+                  _MessageBubble(message: chat.messages[index]),
             ),
           ),
           SafeArea(
@@ -104,6 +99,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: TextField(
@@ -113,7 +109,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
                       decoration: InputDecoration(
-                        hintText: 'Message ${persona.name}...',
+                        hintText: 'Message ${config.title}...',
                       ),
                     ),
                   ),
@@ -122,7 +118,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     onPressed: chat.isSending ? null : _send,
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      minimumSize: const Size(48, 48),
+                      minimumSize: const Size(52, 52),
                     ),
                     icon: chat.isSending
                         ? const SizedBox(
@@ -153,6 +149,7 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.role == 'user';
+    final isPending = message.content.isEmpty && message.isStreaming;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -180,10 +177,11 @@ class _MessageBubble extends StatelessWidget {
               bottomRight: Radius.circular(isUser ? 4 : 16),
             ),
           ),
-          child: message.content.isEmpty && message.isStreaming
+          child: isPending
               ? const SizedBox(
-                  width: 36,
-                  child: Text('...', style: TextStyle(fontSize: 18)),
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : SelectableText(
                   message.content,

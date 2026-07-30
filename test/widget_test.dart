@@ -1,45 +1,48 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:nex_gen_ai/core/storage/secure_storage.dart';
 import 'package:nex_gen_ai/main.dart';
 
-class FakeSecureStorage extends SecureStorage {
-  FakeSecureStorage() : super(const FlutterSecureStorage());
-
-  String? token;
-
-  @override
-  Future<String?> readToken() async => token;
-
-  @override
-  Future<void> writeToken(String token) async => this.token = token;
-
-  @override
-  Future<void> deleteToken() async => token = null;
-}
+import 'helpers.dart';
 
 void main() {
-  testWidgets('App boots to splash and redirects to login when signed out',
+  testWidgets('App boots to splash then redirects to login when signed out',
       (WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          secureStorageProvider.overrideWithValue(FakeSecureStorage()),
-        ],
+        overrides: await testOverrides(),
         child: const NexGenAiApp(),
       ),
     );
 
-    // Splash is shown while the session is being restored.
+    // Splash is shown while the stored session is being restored.
     expect(find.text('NexgenAI'), findsOneWidget);
 
-    // With no stored token the router redirects to the login screen.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Sign In'), findsOneWidget);
+  });
+
+  testWidgets('Login form validates email and password',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: await testOverrides(),
+        child: const NexGenAiApp(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    await tester.tap(find.text('Sign In'));
+    await tester.pump();
+
+    expect(find.text('Enter a valid email'), findsOneWidget);
+    expect(
+      find.text('Password must be at least 6 characters'),
+      findsOneWidget,
+    );
   });
 }

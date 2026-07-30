@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_ce/hive.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 /// Overridden in main() after Hive initialization.
 final historyBoxProvider = Provider<Box<Map>>(

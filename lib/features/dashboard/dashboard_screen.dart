@@ -55,6 +55,31 @@ const _features = [
   ),
 ];
 
+class _CreditsBanner extends StatelessWidget {
+  const _CreditsBanner({required this.credits});
+
+  final num? credits;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.bolt, color: AppColors.neonCyan),
+        title: Text(
+          credits != null ? '$credits credits left' : 'Your plan',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: const Text(
+          'Tap to view plans and transactions',
+          style: TextStyle(color: AppColors.light, fontSize: 12),
+        ),
+        trailing: const Icon(Icons.chevron_right, color: AppColors.mid),
+        onTap: () => context.push('/billing'),
+      ),
+    );
+  }
+}
+
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -82,6 +107,8 @@ class DashboardScreen extends ConsumerWidget {
                 .bodyMedium
                 ?.copyWith(color: AppColors.light),
           ),
+          const SizedBox(height: 16),
+          _CreditsBanner(credits: user?.credits),
           const SizedBox(height: 20),
           GridView.builder(
             shrinkWrap: true,

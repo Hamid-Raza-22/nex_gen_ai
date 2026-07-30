@@ -1,10 +1,37 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/ai_client.dart';
-import '../../ai_assistants/data/personas.dart';
 import '../../history/data/history_repository.dart';
+
+/// Identifies a chat session. Value equality keeps the Riverpod family stable.
+@immutable
+class ChatConfig {
+  const ChatConfig({
+    required this.id,
+    required this.title,
+    required this.avatar,
+    required this.subtitle,
+    required this.systemPrompt,
+    required this.greeting,
+  });
+
+  final String id;
+  final String title;
+  final String avatar;
+  final String subtitle;
+  final String systemPrompt;
+  final String greeting;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChatConfig && other.id == id && other.title == title;
+
+  @override
+  int get hashCode => Object.hash(id, title);
+}
 
 class ChatMessage {
   const ChatMessage({
@@ -25,7 +52,11 @@ class ChatMessage {
 }
 
 class ChatState {
-  const ChatState({this.messages = const [], this.isSending = false, this.error});
+  const ChatState({
+    this.messages = const [],
+    this.isSending = false,
+    this.error,
+  });
 
   final List<ChatMessage> messages;
   final bool isSending;
@@ -44,19 +75,17 @@ class ChatState {
 }
 
 final chatControllerProvider = NotifierProvider.autoDispose
-    .family<ChatController, ChatState, String>(ChatController.new);
+    .family<ChatController, ChatState, ChatConfig>(ChatController.new);
 
 class ChatController extends Notifier<ChatState> {
-  ChatController(this.personaId);
+  ChatController(this.config);
 
-  final String personaId;
-
-  Persona get _persona => personaById(personaId) ?? personas.first;
+  final ChatConfig config;
 
   @override
   ChatState build() {
     return ChatState(
-      messages: [ChatMessage(role: 'assistant', content: _persona.greeting)],
+      messages: [ChatMessage(role: 'assistant', content: config.greeting)],
     );
   }
 
@@ -70,8 +99,9 @@ class ChatController extends Notifier<ChatState> {
     );
 
     final apiMessages = <Map<String, String>>[
-      {'role': 'system', 'content': _persona.systemPrompt},
-      for (final m in state.messages.skip(1)) // skip local greeting
+      {'role': 'system', 'content': config.systemPrompt},
+      // Skip the locally generated greeting.
+      for (final m in state.messages.skip(1))
         {'role': m.role, 'content': m.content},
     ];
 
@@ -83,16 +113,15 @@ class ChatController extends Notifier<ChatState> {
     );
 
     try {
-      final stream =
-          ref.read(aiClientProvider).chatCompletionStream(apiMessages);
+      final client = ref.read(aiClientProvider);
       var full = '';
-      await for (final delta in stream) {
+      await for (final delta in client.chatCompletionStream(apiMessages)) {
         full += delta;
         _updateLastMessage(full, streaming: true);
       }
       if (full.isEmpty) {
-        // Some gateways reject streaming; fall back to a single request.
-        full = await ref.read(aiClientProvider).chatCompletion(apiMessages);
+        // Some gateways do not support streaming; fall back to one request.
+        full = await client.chatCompletion(apiMessages);
       }
       _updateLastMessage(full, streaming: false);
       state = state.copyWith(isSending: false);
@@ -100,7 +129,7 @@ class ChatController extends Notifier<ChatState> {
         ref.read(historyEntriesProvider.notifier).record(
               HistoryEntry(
                 type: HistoryType.chat,
-                title: 'Chat with ${_persona.name}',
+                title: 'Chat with ${config.title}',
                 snippet: text.trim(),
                 timestamp: DateTime.now(),
               ),
@@ -108,9 +137,8 @@ class ChatController extends Notifier<ChatState> {
       );
     } catch (e) {
       // Drop the empty streaming bubble and surface the error.
-      state = state.copyWith(
+      state = ChatState(
         messages: state.messages.sublist(0, state.messages.length - 1),
-        isSending: false,
         error: '$e',
       );
     }
@@ -124,6 +152,4 @@ class ChatController extends Notifier<ChatState> {
     );
     state = state.copyWith(messages: messages);
   }
-
-  void clearError() => state = state.copyWith();
 }

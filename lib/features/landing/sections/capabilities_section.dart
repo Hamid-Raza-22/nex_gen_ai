@@ -61,61 +61,66 @@ class CapabilitiesSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            badge: 'Capabilities',
-            title: 'Four Pillars of',
-            gradientPart: 'AI Generation',
-            subtitle:
-                'Explore our core AI generation engines, each purpose-built, '
-                'production-ready, and endlessly powerful.',
+          const FadeInReveal(
+            child: SectionHeader(
+              badge: 'Capabilities',
+              title: 'Four Pillars of',
+              gradientPart: 'AI Generation',
+              subtitle:
+                  'Explore our core AI generation engines, each purpose-built, '
+                  'production-ready, and endlessly powerful.',
+            ),
           ),
           const SizedBox(height: 24),
-          for (final capability in _capabilities)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: SectionCard(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        gradient: kCtaGradient,
-                        borderRadius: BorderRadius.circular(12),
+          for (int i = 0; i < _capabilities.length; i++)
+            FadeInReveal(
+              delay: Duration(milliseconds: 100 * (i + 1)),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: SectionCard(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          gradient: kCtaGradient,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          _capabilities[i].icon,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
-                      child: Icon(
-                        capability.icon,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            capability.title,
-                            style: const TextStyle(
-                              color: AppColors.lightest,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _capabilities[i].title,
+                              style: const TextStyle(
+                                color: AppColors.lightest,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            capability.description,
-                            style: const TextStyle(
-                              color: AppColors.light,
-                              fontSize: 12.5,
-                              height: 1.5,
+                            const SizedBox(height: 4),
+                            Text(
+                              _capabilities[i].description,
+                              style: const TextStyle(
+                                color: AppColors.light,
+                                fontSize: 12.5,
+                                height: 1.5,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

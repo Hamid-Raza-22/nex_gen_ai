@@ -46,54 +46,59 @@ class FaqSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            badge: 'FAQs',
-            title: 'Your Questions,',
-            gradientPart: 'Answered',
+          const FadeInReveal(
+            child: SectionHeader(
+              badge: 'FAQs',
+              title: 'Your Questions,',
+              gradientPart: 'Answered',
+            ),
           ),
           const SizedBox(height: 20),
-          for (final faq in _faqs)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Theme(
-                data: Theme.of(context)
-                    .copyWith(dividerColor: Colors.transparent),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.dark.withValues(alpha: 0.75),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: AppColors.mid.withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: ExpansionTile(
-                    shape: const RoundedRectangleBorder(),
-                    iconColor: AppColors.neonCyan,
-                    collapsedIconColor: AppColors.light,
-                    tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-                    childrenPadding:
-                        const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                    title: Text(
-                      faq.question,
-                      style: const TextStyle(
-                        color: AppColors.lightest,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13.5,
+          for (int i = 0; i < _faqs.length; i++)
+            FadeInReveal(
+              delay: Duration(milliseconds: 100 * (i + 1)),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.dark.withValues(alpha: 0.75),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: AppColors.mid.withValues(alpha: 0.4),
                       ),
                     ),
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          faq.answer,
-                          style: const TextStyle(
-                            color: AppColors.light,
-                            fontSize: 12.5,
-                            height: 1.55,
-                          ),
+                    child: ExpansionTile(
+                      shape: const RoundedRectangleBorder(),
+                      iconColor: AppColors.neonCyan,
+                      collapsedIconColor: AppColors.light,
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+                      childrenPadding:
+                          const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                      title: Text(
+                        _faqs[i].question,
+                        style: const TextStyle(
+                          color: AppColors.lightest,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
                         ),
                       ),
-                    ],
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _faqs[i].answer,
+                            style: const TextStyle(
+                              color: AppColors.light,
+                              fontSize: 12.5,
+                              height: 1.55,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

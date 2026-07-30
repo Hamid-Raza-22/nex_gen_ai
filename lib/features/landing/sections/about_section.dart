@@ -15,32 +15,52 @@ class AboutSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            badge: 'About Us',
-            title: 'The Engine Behind',
-            gradientPart: 'Intelligent Creation',
-            subtitle:
-                'We build AI infrastructure that converts raw ideas into '
-                'polished, production-ready assets with zero friction.',
+          const FadeInReveal(
+            child: SectionHeader(
+              badge: 'About Us',
+              title: 'The Engine Behind',
+              gradientPart: 'Intelligent Creation',
+              subtitle:
+                  'We build AI infrastructure that converts raw ideas into '
+                  'polished, production-ready assets with zero friction.',
+            ),
           ),
           const SizedBox(height: 24),
-          const _TerminalCard(),
+          const FadeInReveal(
+            delay: Duration(milliseconds: 200),
+            child: _TerminalCard(),
+          ),
           const SizedBox(height: 20),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _Metric(value: '99ms', label: 'Avg Latency'),
-              _Metric(value: '4.2B', label: 'Parameters'),
-              _Metric(value: '99.8%', label: 'Uptime'),
-            ],
+          FadeInReveal(
+            delay: const Duration(milliseconds: 400),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                _Metric(value: '99ms', label: 'Avg Latency'),
+                _Metric(value: '4.2B', label: 'Parameters'),
+                _Metric(value: '99.8%', label: 'Uptime'),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           Column(
             children: const [
-              _FeatureBullet('⚡', 'Real-Time AI Inference'),
-              _FeatureBullet('🧠', 'Multi-Modal Foundation Models'),
-              _FeatureBullet('🔐', 'Enterprise-Grade Security'),
-              _FeatureBullet('🌐', 'Global Edge Delivery'),
+              FadeInReveal(
+                delay: Duration(milliseconds: 500),
+                child: _FeatureBullet('⚡', 'Real-Time AI Inference'),
+              ),
+              FadeInReveal(
+                delay: Duration(milliseconds: 600),
+                child: _FeatureBullet('🧠', 'Multi-Modal Foundation Models'),
+              ),
+              FadeInReveal(
+                delay: Duration(milliseconds: 700),
+                child: _FeatureBullet('🔐', 'Enterprise-Grade Security'),
+              ),
+              FadeInReveal(
+                delay: Duration(milliseconds: 800),
+                child: _FeatureBullet('🌐', 'Global Edge Delivery'),
+              ),
             ],
           ),
         ],

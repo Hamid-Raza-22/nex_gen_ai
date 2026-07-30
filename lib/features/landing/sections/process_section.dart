@@ -44,53 +44,58 @@ class ProcessSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            badge: 'Process',
-            title: 'How It Works',
-            subtitle: 'From prompt to production in three simple steps.',
+          const FadeInReveal(
+            child: SectionHeader(
+              badge: 'Process',
+              title: 'How It Works',
+              subtitle: 'From prompt to production in three simple steps.',
+            ),
           ),
           const SizedBox(height: 24),
-          for (final step in _steps)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: SectionCard(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GradientText(
-                      step.number,
-                      style: const TextStyle(
-                        fontFamily: AppTheme.displayFont,
-                        fontSize: 34,
-                        fontWeight: FontWeight.w700,
+          for (int i = 0; i < _steps.length; i++)
+            FadeInReveal(
+              delay: Duration(milliseconds: 150 * (i + 1)),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: SectionCard(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GradientText(
+                        _steps[i].number,
+                        style: const TextStyle(
+                          fontFamily: AppTheme.displayFont,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            step.title,
-                            style: const TextStyle(
-                              color: AppColors.lightest,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _steps[i].title,
+                              style: const TextStyle(
+                                color: AppColors.lightest,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            step.description,
-                            style: const TextStyle(
-                              color: AppColors.light,
-                              fontSize: 13,
-                              height: 1.55,
+                            const SizedBox(height: 6),
+                            Text(
+                              _steps[i].description,
+                              style: const TextStyle(
+                                color: AppColors.light,
+                                fontSize: 13,
+                                height: 1.55,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

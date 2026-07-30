@@ -40,61 +40,84 @@ class WhyUsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionBadge('Why Us'),
+          const FadeInReveal(
+            child: SectionBadge('Why Us'),
+          ),
           const SizedBox(height: 14),
-          const Text('Traditional vs', style: kSectionTitleStyle),
-          Row(
-            children: const [
-              GradientText('AI-Powered', style: kSectionTitleStyle),
-              Text(' Creation', style: kSectionTitleStyle),
-            ],
+          const FadeInReveal(
+            delay: Duration(milliseconds: 100),
+            child: Text('Traditional vs', style: kSectionTitleStyle),
+          ),
+          FadeInReveal(
+            delay: const Duration(milliseconds: 200),
+            child: Row(
+              children: const [
+                GradientText('AI-Powered', style: kSectionTitleStyle),
+                Text(' Creation', style: kSectionTitleStyle),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'See exactly how NexgenAI transforms your creative workflow with '
-            'speed, precision, and scale.',
-            style: kSectionSubtitleStyle,
+          const FadeInReveal(
+            delay: Duration(milliseconds: 300),
+            child: Text(
+              'See exactly how NexgenAI transforms your creative workflow with '
+              'speed, precision, and scale.',
+              style: kSectionSubtitleStyle,
+            ),
           ),
           const SizedBox(height: 20),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _WhyStat(value: '100×', label: 'Faster output'),
-              _WhyStat(value: '95%', label: 'Cost reduction'),
-              _WhyStat(value: '∞', label: 'Scale potential'),
-            ],
+          FadeInReveal(
+            delay: const Duration(milliseconds: 400),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                _WhyStat(value: '100×', label: 'Faster output'),
+                _WhyStat(value: '95%', label: 'Cost reduction'),
+                _WhyStat(value: '∞', label: 'Scale potential'),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
-          _CompareCard(
-            title: 'Traditional Approach',
-            subtitle: 'Manual, slow, expensive',
-            rows: _traditionalRows,
-            positive: false,
+          FadeInReveal(
+            delay: const Duration(milliseconds: 500),
+            child: _CompareCard(
+              title: 'Traditional Approach',
+              subtitle: 'Manual, slow, expensive',
+              rows: _traditionalRows,
+              positive: false,
+            ),
           ),
           const SizedBox(height: 16),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                gradient: kCtaGradient,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: const Text(
-                'VS',
-                style: TextStyle(
-                  fontFamily: AppTheme.displayFont,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
+          FadeInReveal(
+            delay: const Duration(milliseconds: 600),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: kCtaGradient,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  'VS',
+                  style: TextStyle(
+                    fontFamily: AppTheme.displayFont,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          _CompareCard(
-            title: 'NexgenAI Platform',
-            subtitle: 'Instant, scalable, affordable',
-            rows: _aiRows,
-            positive: true,
+          FadeInReveal(
+            delay: const Duration(milliseconds: 700),
+            child: _CompareCard(
+              title: 'NexgenAI Platform',
+              subtitle: 'Instant, scalable, affordable',
+              rows: _aiRows,
+              positive: true,
+            ),
           ),
         ],
       ),

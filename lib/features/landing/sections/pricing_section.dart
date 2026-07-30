@@ -47,96 +47,101 @@ class PricingSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            badge: 'Pricing',
-            title: 'Choose a',
-            gradientPart: 'Package',
+          const FadeInReveal(
+            child: SectionHeader(
+              badge: 'Pricing',
+              title: 'Choose a',
+              gradientPart: 'Package',
+            ),
           ),
           const SizedBox(height: 20),
-          for (final plan in _plans)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: SectionCard(
-                borderColor: plan.highlighted
-                    ? AppColors.neonCyan.withValues(alpha: 0.6)
-                    : null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            plan.name,
-                            style: const TextStyle(
-                              color: AppColors.lightest,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                        GradientText(
-                          '\$${plan.amount}',
-                          style: const TextStyle(
-                            fontFamily: AppTheme.displayFont,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4, top: 8),
-                          child: Text(
-                            'per month',
-                            style: TextStyle(
-                              color: AppColors.light,
-                              fontSize: 10.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      plan.description,
-                      style: const TextStyle(
-                        color: AppColors.light,
-                        fontSize: 12.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _PlanFeature('${plan.words} words'),
-                    _PlanFeature('${plan.tokens} image tokens'),
-                    const SizedBox(height: 14),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: plan.highlighted ? kCtaGradient : null,
-                        borderRadius: BorderRadius.circular(12),
-                        border: plan.highlighted
-                            ? null
-                            : Border.all(
-                                color: AppColors.light.withValues(alpha: 0.5),
+          for (int i = 0; i < _plans.length; i++)
+            FadeInReveal(
+              delay: Duration(milliseconds: 150 * (i + 1)),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: SectionCard(
+                  borderColor: _plans[i].highlighted
+                      ? AppColors.neonCyan.withValues(alpha: 0.6)
+                      : null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _plans[i].name,
+                              style: const TextStyle(
+                                color: AppColors.lightest,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 17,
                               ),
-                      ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(
-                            minimumSize: const Size.fromHeight(46),
+                            ),
                           ),
-                          child: Text(
-                            'Buy Now',
-                            style: TextStyle(
-                              color: plan.highlighted
-                                  ? Colors.white
-                                  : AppColors.lightest,
+                          GradientText(
+                            '\$${_plans[i].amount}',
+                            style: const TextStyle(
+                              fontFamily: AppTheme.displayFont,
+                              fontSize: 26,
                               fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 4, top: 8),
+                            child: Text(
+                              'per month',
+                              style: TextStyle(
+                                color: AppColors.light,
+                                fontSize: 10.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _plans[i].description,
+                        style: const TextStyle(
+                          color: AppColors.light,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _PlanFeature('${_plans[i].words} words'),
+                      _PlanFeature('${_plans[i].tokens} image tokens'),
+                      const SizedBox(height: 14),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: _plans[i].highlighted ? kCtaGradient : null,
+                          borderRadius: BorderRadius.circular(12),
+                          border: _plans[i].highlighted
+                              ? null
+                              : Border.all(
+                                  color: AppColors.light.withValues(alpha: 0.5),
+                                ),
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size.fromHeight(46),
+                            ),
+                            child: Text(
+                              'Buy Now',
+                              style: TextStyle(
+                                color: _plans[i].highlighted
+                                    ? Colors.white
+                                    : AppColors.lightest,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

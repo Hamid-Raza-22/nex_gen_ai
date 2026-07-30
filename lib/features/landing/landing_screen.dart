@@ -98,44 +98,58 @@ class _LandingScreenState extends State<LandingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Hero
-                        const FadeInReveal(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 24),
-                                _HeroBadge(),
-                                SizedBox(height: 20),
-                                _HeroHeadline(),
-                                SizedBox(height: 16),
-                                _HeroDescription(),
-                                SizedBox(height: 28),
-                                _CtaButtons(),
-                                SizedBox(height: 32),
-                                _StatsRow(),
-                                SizedBox(height: 40),
-                                _HeroVisual(),
-                              ],
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              SizedBox(height: 24),
+                              FadeInReveal(
+                                horizontalOffset: 0.1,
+                                child: _HeroBadge(),
+                              ),
+                              SizedBox(height: 20),
+                              FadeInReveal(
+                                delay: Duration(milliseconds: 200),
+                                child: _HeroHeadline(),
+                              ),
+                              SizedBox(height: 16),
+                              FadeInReveal(
+                                delay: Duration(milliseconds: 400),
+                                child: _HeroDescription(),
+                              ),
+                              SizedBox(height: 28),
+                              FadeInReveal(
+                                delay: Duration(milliseconds: 600),
+                                child: _CtaButtons(),
+                              ),
+                              SizedBox(height: 32),
+                              FadeInReveal(
+                                delay: Duration(milliseconds: 800),
+                                child: _StatsRow(),
+                              ),
+                              SizedBox(height: 40),
+                              FadeInReveal(
+                                delay: Duration(milliseconds: 1000),
+                                child: _HeroVisual(),
+                              ),
+                            ],
                           ),
                         ),
                         // Page sections (same order as the website)
-                        const FadeInReveal(child: AboutSection()),
-                        FadeInReveal(
-                          child: CapabilitiesSection(key: _capabilitiesKey),
-                        ),
-                        FadeInReveal(child: ProcessSection(key: _processKey)),
-                        const FadeInReveal(child: PlatformSection()),
-                        const FadeInReveal(child: WhyUsSection()),
-                        const FadeInReveal(child: WhyChooseSection()),
-                        const FadeInReveal(child: UseCasesSection()),
-                        const FadeInReveal(child: TestimonialsSection()),
-                        FadeInReveal(child: FaqSection(key: _faqKey)),
-                        FadeInReveal(child: PricingSection(key: _pricingKey)),
-                        const FadeInReveal(child: CtaSection()),
-                        FadeInReveal(child: BlogSection(key: _blogKey)),
-                        FadeInReveal(child: ContactSection(key: _contactKey)),
+                        const AboutSection(),
+                        CapabilitiesSection(key: _capabilitiesKey),
+                        ProcessSection(key: _processKey),
+                        const PlatformSection(),
+                        const WhyUsSection(),
+                        const WhyChooseSection(),
+                        const UseCasesSection(),
+                        const TestimonialsSection(),
+                        FaqSection(key: _faqKey),
+                        PricingSection(key: _pricingKey),
+                        const CtaSection(),
+                        BlogSection(key: _blogKey),
+                        ContactSection(key: _contactKey),
                         const FooterSection(),
                       ],
                     ),

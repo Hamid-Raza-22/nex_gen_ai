@@ -168,7 +168,6 @@ class _FadeInRevealState extends State<FadeInReveal>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
-  bool _hasStarted = false;
 
   @override
   void initState() {
@@ -189,11 +188,16 @@ class _FadeInRevealState extends State<FadeInReveal>
   }
 
   void _trigger() {
-    if (_hasStarted || !mounted) return;
-    setState(() => _hasStarted = true);
+    if (!mounted || _controller.isAnimating || _controller.isCompleted) return;
     Future.delayed(widget.delay, () {
       if (mounted) _controller.forward();
     });
+  }
+
+  void _reset() {
+    if (mounted && (_controller.status != AnimationStatus.dismissed)) {
+      _controller.reset();
+    }
   }
 
   @override
@@ -206,6 +210,7 @@ class _FadeInRevealState extends State<FadeInReveal>
   Widget build(BuildContext context) {
     return _VisibilityTrigger(
       onVisible: _trigger,
+      onInvisible: _reset,
       child: FadeTransition(
         opacity: _opacity,
         child: SlideTransition(position: _slide, child: widget.child),
@@ -216,10 +221,15 @@ class _FadeInRevealState extends State<FadeInReveal>
 
 /// A helper widget that triggers a callback when it becomes visible on screen.
 class _VisibilityTrigger extends StatefulWidget {
-  const _VisibilityTrigger({required this.child, required this.onVisible});
+  const _VisibilityTrigger({
+    required this.child,
+    required this.onVisible,
+    this.onInvisible,
+  });
 
   final Widget child;
   final VoidCallback onVisible;
+  final VoidCallback? onInvisible;
 
   @override
   State<_VisibilityTrigger> createState() => _VisibilityTriggerState();
@@ -231,25 +241,36 @@ class _VisibilityTriggerState extends State<_VisibilityTrigger> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisibility());
+    _startTracking();
+  }
+
+  void _startTracking() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _checkVisibility();
+        _startTracking(); // Continue tracking for repeat animations
+      }
+    });
   }
 
   void _checkVisibility() {
-    if (!mounted || _isVisible) return;
-
     final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final position = renderBox.localToGlobal(Offset.zero);
     final screenHeight = MediaQuery.sizeOf(context).height;
+    final widgetHeight = renderBox.size.height;
 
-    // Trigger when the widget is within the bottom 15% of the screen
-    if (position.dy < screenHeight * 0.85) {
+    // Logic: Is any part of the widget currently visible?
+    final bool visibleNow =
+        position.dy < screenHeight * 0.9 && (position.dy + widgetHeight) > 10;
+
+    if (visibleNow && !_isVisible) {
       _isVisible = true;
       widget.onVisible();
-    } else {
-      // Re-check on next frame if not visible yet
-      WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisibility());
+    } else if (!visibleNow && _isVisible) {
+      _isVisible = false;
+      widget.onInvisible?.call();
     }
   }
 

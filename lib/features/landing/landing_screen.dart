@@ -6,6 +6,18 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_theme.dart';
+import 'sections/about_section.dart';
+import 'sections/capabilities_section.dart';
+import 'sections/closing_sections.dart';
+import 'sections/faq_section.dart';
+import 'sections/platform_section.dart';
+import 'sections/pricing_section.dart';
+import 'sections/process_section.dart';
+import 'sections/section_shared.dart';
+import 'sections/testimonials_section.dart';
+import 'sections/use_cases_section.dart';
+import 'sections/why_choose_section.dart';
+import 'sections/why_us_section.dart';
 
 /// Landing screen — a faithful mobile recreation of the brainvoai.com
 /// (NexgenAI) hero section. All copy, colors and layout were extracted from
@@ -27,23 +39,45 @@ class LandingScreen extends StatelessWidget {
                 const _TopBar(),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        SizedBox(height: 24),
-                        _HeroBadge(),
-                        SizedBox(height: 20),
-                        _HeroHeadline(),
-                        SizedBox(height: 16),
-                        _HeroDescription(),
-                        SizedBox(height: 28),
-                        _CtaButtons(),
-                        SizedBox(height: 32),
-                        _StatsRow(),
-                        SizedBox(height: 40),
-                        _HeroVisual(),
-                        SizedBox(height: 40),
+                        // Hero
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 24),
+                              _HeroBadge(),
+                              SizedBox(height: 20),
+                              _HeroHeadline(),
+                              SizedBox(height: 16),
+                              _HeroDescription(),
+                              SizedBox(height: 28),
+                              _CtaButtons(),
+                              SizedBox(height: 32),
+                              _StatsRow(),
+                              SizedBox(height: 40),
+                              _HeroVisual(),
+                            ],
+                          ),
+                        ),
+                        // Page sections (same order as the website)
+                        AboutSection(),
+                        CapabilitiesSection(),
+                        ProcessSection(),
+                        PlatformSection(),
+                        WhyUsSection(),
+                        WhyChooseSection(),
+                        UseCasesSection(),
+                        TestimonialsSection(),
+                        FaqSection(),
+                        PricingSection(),
+                        CtaSection(),
+                        BlogSection(),
+                        ContactSection(),
+                        FooterSection(),
                       ],
                     ),
                   ),
@@ -176,7 +210,7 @@ class _NavDrawer extends StatelessWidget {
                   const SizedBox(height: 10),
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: _ctaGradient,
+                      gradient: kCtaGradient,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: FilledButton(
@@ -268,11 +302,6 @@ class _HeroBadgeState extends State<_HeroBadge>
 
 // ─── Headline with rotating gradient word ───────────────────────────────────
 
-/// Tailwind gradient used on the site: from-cyan-400 via-purple-400 to-pink-500
-const _headlineGradient = LinearGradient(
-  colors: [Color(0xFF22D3EE), Color(0xFFC084FC), Color(0xFFEC4899)],
-);
-
 /// Rotating words extracted from the site bundle.
 const _rotatingWords = ['Images', 'Videos', 'Shorts', 'Code Snippets'];
 
@@ -329,35 +358,15 @@ class _HeroHeadlineState extends State<_HeroHeadline> {
                 child: child,
               ),
             ),
-            child: _GradientText(
+            child: GradientText(
               _rotatingWords[_wordIndex],
               key: ValueKey(_wordIndex),
-              gradient: _headlineGradient,
               style: headlineStyle,
             ),
           ),
         ),
         const Text('with Intelligence', style: headlineStyle),
       ],
-    );
-  }
-}
-
-class _GradientText extends StatelessWidget {
-  const _GradientText(this.text, {super.key, required this.gradient, this.style});
-
-  final String text;
-  final Gradient gradient;
-  final TextStyle? style;
-
-  @override
-  Widget build(BuildContext context) {
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => gradient.createShader(
-        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-      ),
-      child: Text(text, style: style),
     );
   }
 }
@@ -384,11 +393,6 @@ class _HeroDescription extends StatelessWidget {
 
 // ─── CTA buttons ────────────────────────────────────────────────────────────
 
-/// Tailwind gradient on the primary CTA: from-cyan-500 to-purple-500
-const _ctaGradient = LinearGradient(
-  colors: [Color(0xFF06B6D4), Color(0xFFA855F7)],
-);
-
 class _CtaButtons extends StatelessWidget {
   const _CtaButtons();
 
@@ -399,7 +403,7 @@ class _CtaButtons extends StatelessWidget {
         Expanded(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              gradient: _ctaGradient,
+              gradient: kCtaGradient,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
